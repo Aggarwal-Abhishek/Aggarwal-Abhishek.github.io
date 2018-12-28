@@ -55,7 +55,7 @@
     var opcanvas = document.getElementById('opcanvas');
     var opcontext = opcanvas.getContext('2d');
     window.setInterval(()=>{
-        imagedata = (context.getImageData(0, 0, w, h));
+        imagedata = (context.getImageData(0, 0, w, h)).data;
         console.log(imagedata.length);
 
         for(var i=0; i<imagedata.length; i+=4){
