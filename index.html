@@ -1,1 +1,105 @@
-<h1>Hello Web !</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Get HSV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script> -->
+</head>
+<body>
+    
+    <video autoplay controls id="video" width="250" height="250"></video>
+    <canvas id="opcanvas" width="250" height="250"></canvas>
+
+    <h3>Console Logs</h3>
+    <input type="button" value="Stop Recording" id="btnlogtoggle"/>
+    <input type="button" value="Clear" onclick="document.querySelector('#oplogs').innerHTML = '';"/>
+    
+    <div id='oplogs'></div>
+</body>
+
+<script>
+
+    var video, canvas, context, w, h;
+    document.addEventListener('DOMContentLoaded', ()=>{
+        video = document.getElementById('video');
+        // canvas = document.getElementById('canvas');
+        canvas = document.createElement('canvas');
+        canvas.width = 250;
+        canvas.height = 200;
+        context = canvas.getContext('2d');
+        w = canvas.width;
+        h = canvas.height;
+        // console.log(w+', '+h);
+        // w = 250;
+        // h = 250;
+    }, false);
+
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+    if(navigator.getUserMedia){
+        navigator.getUserMedia({video: true}, (stream) => {
+            video.srcObject = stream;
+        }, (e)=>{console.log('Error...');});
+    }
+
+    // draw frame to canvas
+    window.setInterval(()=>{
+        if(context){
+            context.drawImage(video, 0, 0, w, h);
+        }
+    }, 30);
+
+    // manipulate pixels
+    var opcanvas = document.getElementById('opcanvas');
+    var opcontext = opcanvas.getContext('2d');
+    window.setInterval(()=>{
+        imagedata = (context.getImageData(0, 0, w, h));
+        // console.log(imagedata.length);
+
+        for(var i=0; i<imagedata.length; i+=4){
+            imagedata[i] = 255-imagedata[i];
+            imagedata[i+1] = 255-imagedata[i+1];
+            imagedata[i+2] = 255-imagedata[i+2];
+        }
+        opcontext.putImageData(imagedata, 0, 0);
+    }, 30);
+
+
+
+    
+
+    
+    var ok_logs = true;
+    
+    console.log = (msg) => {
+        if(ok_logs == false) return;
+        op = document.querySelector('#oplogs');
+        op.innerHTML += '<hr>'+msg;
+    }
+
+    window.onerror = (e, u, l) => {
+        if(ok_logs == false) return;
+        console.log('Error : '+ e +'<br>' +
+                    'URL : ' + u + '<br>' +
+                    'Line : '+ l + '<br>'
+            );
+    }
+    
+    var btn = document.getElementById('btnlogtoggle');
+    btn.addEventListener('click', ()=>{
+        
+        if(btn.value == 'Stop Recording'){
+            btn.value = 'Start Recording';
+            ok_logs = false;
+        }else{
+            btn.value = 'Stop Recording'
+            ok_logs = true;
+        }
+    });
+
+</script>
+
+
+</html>
