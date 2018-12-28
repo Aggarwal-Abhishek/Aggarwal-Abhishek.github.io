@@ -55,13 +55,13 @@
     var opcanvas = document.getElementById('opcanvas');
     var opcontext = opcanvas.getContext('2d');
     window.setInterval(()=>{
-        imagedata = (context.getImageData(0, 0, w, h)).data;
-        console.log(imagedata.length);
-
-        for(var i=0; i<imagedata.length; i+=4){
-            imagedata[i] = 255-imagedata[i];
-            imagedata[i+1] = 255-imagedata[i+1];
-            imagedata[i+2] = 255-imagedata[i+2];
+        imagedata = context.getImageData(0, 0, w, h)
+        data = imagedata.data;
+        
+        for(var i=0; i<data.length; i+=4){
+            data[i] = 255-data[i];
+            data[i+1] = 255-data[i+1];
+            data[i+2] = 255-data[i+2];
         }
         opcontext.putImageData(imagedata, 0, 0);
     }, 30);
