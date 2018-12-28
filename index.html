@@ -56,7 +56,7 @@
     var opcontext = opcanvas.getContext('2d');
     window.setInterval(()=>{
         imagedata = (context.getImageData(0, 0, w, h));
-        // console.log(imagedata.length);
+        console.log(imagedata.length);
 
         for(var i=0; i<imagedata.length; i+=4){
             imagedata[i] = 255-imagedata[i];
