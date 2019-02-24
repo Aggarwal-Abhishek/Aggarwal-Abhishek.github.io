@@ -5,12 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>CharCam</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        p{
+            margin: -2px;
+        }
+    </style>
 </head>
 <body>
     <input type="button" value="Start Camera" onclick="start_camera()"><input type="button" value="Stop Camera" onclick="stop_camera()">
     <br>
     <canvas id="canvas" style="display: none;"></canvas>
-    <div id="op" style="font-size: 3px; font-family: 'Courier New', Courier, monospace; position: absolute; height: auto; width: auto;">
+    <div id="op" style="font-size: 3px; font-family: 'Courier New', Courier, monospace;">
     </div>
 </body>
 <script>
@@ -59,12 +65,13 @@
 
             for(var h=0; h<height; h++){
                 var i = h * width * 4;
+                str += '<p>';
                 for(var w=0; w<width; w++, i+=4){
                     var v = Math.max(data[i], data[i+1], data[i+2]) / 255;
 
                     str += symbol[Math.floor(v * (n-1))];
                 }
-                str += '<br>';
+                str += '</p>';
             }
 
             document.querySelector('#op').innerHTML = str;
