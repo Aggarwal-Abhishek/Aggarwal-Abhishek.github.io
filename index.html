@@ -1,105 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Get HSV</title>
+    <title>CharCam</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script> -->
 </head>
 <body>
-    
-    <video autoplay controls id="video" width="250" height="250"></video>
-    <canvas id="opcanvas" width="250" height="250"></canvas>
-
-    <h3>Console Logs</h3>
-    <input type="button" value="Stop Recording" id="btnlogtoggle"/>
-    <input type="button" value="Clear" onclick="document.querySelector('#oplogs').innerHTML = '';"/>
-    
-    <div id='oplogs'></div>
+    <input type="button" value="Start Camera" onclick="start_camera()"><input type="button" value="Stop Camera" onclick="stop_camera()">
+    <br>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div id="op" style="font-size: 3px; font-family: 'Courier New', Courier, monospace; position: absolute; height: auto; width: auto;">
+    </div>
 </body>
-
 <script>
 
-    var video, canvas, context, w, h;
-    document.addEventListener('DOMContentLoaded', ()=>{
-        video = document.getElementById('video');
-        // canvas = document.getElementById('canvas');
-        canvas = document.createElement('canvas');
-        canvas.width = 250;
-        canvas.height = 200;
-        context = canvas.getContext('2d');
-        w = canvas.width;
-        h = canvas.height;
-        // console.log(w+', '+h);
-        // w = 250;
-        // h = 250;
-    }, false);
+    var r = 300 / Math.max(screen.width, screen.height);
 
-    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
-    if(navigator.getUserMedia){
-        navigator.getUserMedia({video: true}, (stream) => {
-            video.srcObject = stream;
-        }, (e)=>{console.log('Error...');});
-    }
 
-    // draw frame to canvas
-    window.setInterval(()=>{
-        if(context){
-            context.drawImage(video, 0, 0, w, h);
+    var width = Math.floor(screen.width * r);
+    var height = Math.floor(screen.height * r);
+
+
+
+    var screen_size = document.querySelector('#screen_size');
+    var video = document.createElement('video');
+    video.autoplay = true;
+
+    
+    var canvas = document.querySelector('#canvas');
+    canvas.width = width;
+    canvas.height = height;
+    var context = canvas.getContext('2d');
+
+    
+
+
+
+    var symbol = ['&nbsp;', '&nbsp;', '.', '.', '*', '#', '$', '@'].reverse();
+    var n = symbol.length;
+
+    var cam_id = null;
+
+    function start_camera(){
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.oGetUserMedia;
+        if(navigator.getUserMedia){
+            navigator.getUserMedia({video: true}, (stream) => {
+                video.srcObject = stream;
+                window.localStream = stream;
+            }, (e) => {alert('Not Supported in your Browser...')});
         }
-    }, 30);
-
-    // manipulate pixels
-    var opcanvas = document.getElementById('opcanvas');
-    var opcontext = opcanvas.getContext('2d');
-    window.setInterval(()=>{
-        imagedata = context.getImageData(0, 0, w, h)
-        data = imagedata.data;
         
-        for(var i=0; i<data.length; i+=4){
-            data[i] = 255-data[i];
-            data[i+1] = 255-data[i+1];
-            data[i+2] = 255-data[i+2];
-        }
-        opcontext.putImageData(imagedata, 0, 0);
-    }, 30);
+        cam_id = window.setInterval(()=>{
+            context.drawImage(video, 0, 0, width, height);
+            var data = context.getImageData(0, 0, width, height).data;
+
+            var str = '';
+
+            for(var h=0; h<height; h++){
+                var i = h * width * 4;
+                for(var w=0; w<width; w++, i+=4){
+                    var v = Math.max(data[i], data[i+1], data[i+2]) / 255;
+
+                    str += symbol[Math.floor(v * (n-1))];
+                }
+                str += '<br>';
+            }
+
+            document.querySelector('#op').innerHTML = str;
+        }, 1000 / 20);
 
 
-
-    
-
-    
-    var ok_logs = true;
-    
-    console.log = (msg) => {
-        if(ok_logs == false) return;
-        op = document.querySelector('#oplogs');
-        op.innerHTML += '<hr>'+msg;
     }
+    function stop_camera(){
+        try{localStream.getTracks().forEach(track => { track.stop(); });}
+        catch(e) {}
 
-    window.onerror = (e, u, l) => {
-        if(ok_logs == false) return;
-        console.log('Error : '+ e +'<br>' +
-                    'URL : ' + u + '<br>' +
-                    'Line : '+ l + '<br>'
-            );
+        try{window.clearInterval(cam_id);}
+        catch(e) {}
     }
     
-    var btn = document.getElementById('btnlogtoggle');
-    btn.addEventListener('click', ()=>{
-        
-        if(btn.value == 'Stop Recording'){
-            btn.value = 'Start Recording';
-            ok_logs = false;
-        }else{
-            btn.value = 'Stop Recording'
-            ok_logs = true;
-        }
-    });
+
+
 
 </script>
-
-
 </html>
